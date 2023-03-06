@@ -1,0 +1,4 @@
+I tried to work on the given assignment . facing issue in accessing  pods.
+ERROR:
+[root@ip-172-31-4-136 ~]# kubectl get pods
+E0306 04:11:27.425996   13694 memcache.go:238] couldn't get current server API group list: Get "https://172.31.4.136:6443/api?timeout=32s": dial tcp 172.31.4.136:6443:/api?timeout=32s": dial tcp 172.31.4.136:6443: connect: connection refused
