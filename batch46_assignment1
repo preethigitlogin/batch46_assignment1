@@ -43,7 +43,7 @@ STEP 8 : DELETING THE PODS
     OBSERVATION : While deleting pod ,  I casted the vote , I could see the votes casted in result page . 
     Simultaneoulsy it restarted and I could see all my pods running including voting pod.
     No impact on Front end application.
-    In UNIX , new pods got created 
+    In UNIX , restarted and new pods got created 
   
    DELETE WORKER POD:
     [root@ip-172-31-4-136 k8s-specifications]#  kubectl delete po -n preethi worker-dd46d7584-zhw2m
@@ -58,7 +58,7 @@ STEP 8 : DELETING THE PODS
 
    OBSERVATION: I could see the votes casted . Simultaneoulsy it restarted
     No impact on Front end application
-    In UNIX , new pods got created  
+    In UNIX , restarted and new pods got created  
   
    DELETE DB POD:
    [root@ip-172-31-4-136 k8s-specifications]# kubectl delete po -n preethi db-b54cd94f4-vcjg2
@@ -75,7 +75,7 @@ worker-dd46d7584-q62bb    1/1     Running   1          13m
    OBSERVATION:
    It took time to delete DB pod and it restarted too. Meanwhile , casted vote and it took time to display in results page.
     Front end application results were not showing immediately.
-    In UNIX , new pods got created.
+    In UNIX , restarted and new pods got created.
    
    HOW I MADE THE RESULT POD WORK :
    ANSWER: 
