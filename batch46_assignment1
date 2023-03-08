@@ -1,4 +1,104 @@
-I tried to work on the given assignment . facing issue in accessing  pods.
-ERROR:
-[root@ip-172-31-4-136 ~]# kubectl get pods
-E0306 04:11:27.425996   13694 memcache.go:238] couldn't get current server API group list: Get "https://172.31.4.136:6443/api?timeout=32s": dial tcp 172.31.4.136:6443:/api?timeout=32s": dial tcp 172.31.4.136:6443: connect: connection refused
+STEP 1 TO 6 : DONE
+
+[root@ip-172-31-4-136 k8s-specifications]# kubectl get pods -n preethi
+NAME                      READY   STATUS    RESTARTS   AGE
+db-b54cd94f4-vcjg2        1/1     Running   0          76m
+redis-868d64d78-vzm6j     1/1     Running   0          76m
+result-5d57b59f4b-88bll   1/1     Running   0          76m
+vote-94849dc97-7sdvl      1/1     Running   0          76m
+worker-dd46d7584-zhw2m    1/1     Running   0          76m
+[root@ip-172-31-4-136 k8s-specifications]#
+
+[root@ip-172-31-4-136 k8s-specifications]# kubectl get deployment -n preethi
+NAME     READY   UP-TO-DATE   AVAILABLE   AGE
+db       1/1     1            1           86m
+redis    1/1     1            1           86m
+result   1/1     1            1           86m
+vote     1/1     1            1           86m
+worker   1/1     1            1           86m
+
+STEP 6 and 7 : SUCCESS 
+[root@ip-172-31-4-136 ~]# kubectl logs -f -n preethi vote-94849dc97-7sdvl
+while checking logs i could see vote is casted :
+192.168.216.192 - - [08/Mar/2023:15:25:15 +0000] "GET /static/stylesheets/style.css HTTP/1.1" 304 0 "http://13.251.60.128:31000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:83.0) Gecko/20100101 Firefox/83.0"
+
+[2023-03-08 15:26:12,352] INFO in app: Received vote for b
+[2023-03-08 15:26:12 +0000] [9] [INFO] Received vote for b
+192.168.216.192 - - [08/Mar/2023:15:26:12 +0000] "POST / HTTP/1.1" 200 1696 "http://13.251.60.128:31000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:83.0) Gecko/20100101 Firefox/83.0"
+192.168.216.192 - - [08/Mar/2023:15:26:12 +0000] "GET /static/stylesheets/style.css HTTP/1.1" 304 0 "http://13.251.60.128:31000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:83.0) Gecko/20100101 Firefox/83.0"
+
+STEP 8 : DELETING THE PODS 
+   DELETE VOTING POD:
+   [root@ip-172-31-4-136 k8s-specifications]# kubectl delete po -n preethi vote-94849dc97-7sdvl
+    pod "vote-94849dc97-7sdvl" deleted
+    [root@ip-172-31-4-136 k8s-specifications]# kubectl get po -n preethi
+    NAME                      READY   STATUS    RESTARTS   AGE
+    db-b54cd94f4-vcjg2        1/1     Running   0          112m
+    redis-868d64d78-vzm6j     1/1     Running   0          112m
+    result-5d57b59f4b-88bll   1/1     Running   0          112m
+    vote-94849dc97-jh87p      1/1     Running   0          21s
+    worker-dd46d7584-zhw2m    1/1     Running   0          112m
+    [root@ip-172-31-4-136 k8s-specifications]#
+    
+    OBSERVATION : While deleting pod ,  I casted the vote , I could see the votes casted in result page . 
+    Simultaneoulsy it restarted and I could see all my pods running including voting pod.
+    No impact on Front end application.
+    In UNIX , new pods got created 
+  
+   DELETE WORKER POD:
+    [root@ip-172-31-4-136 k8s-specifications]#  kubectl delete po -n preethi worker-dd46d7584-zhw2m
+    pod "worker-dd46d7584-zhw2m" deleted
+   [root@ip-172-31-4-136 k8s-specifications]# kubectl get pods -n preethi
+    NAME                      READY   STATUS    RESTARTS   AGE
+    db-b54cd94f4-vcjg2        1/1     Running   0          120m
+   redis-868d64d78-vzm6j     1/1     Running   0          120m
+   result-5d57b59f4b-88bll   1/1     Running   0          120m
+   vote-94849dc97-jh87p      1/1     Running   0          7m53s
+   worker-dd46d7584-q62bb    1/1     Running   0          12s
+
+   OBSERVATION: I could see the votes casted . Simultaneoulsy it restarted
+    No impact on Front end application
+    In UNIX , new pods got created  
+  
+   DELETE DB POD:
+   [root@ip-172-31-4-136 k8s-specifications]# kubectl delete po -n preethi db-b54cd94f4-vcjg2
+pod "db-b54cd94f4-vcjg2" deleted
+[root@ip-172-31-4-136 k8s-specifications]#  kubectl get po -n preethi
+NAME                      READY   STATUS    RESTARTS   AGE
+db-b54cd94f4-sjckq        1/1     Running   0          44s
+redis-868d64d78-vzm6j     1/1     Running   0          133m
+result-5d57b59f4b-88bll   1/1     Running   1          133m
+vote-94849dc97-jh87p      1/1     Running   0          20m
+worker-dd46d7584-q62bb    1/1     Running   1          13m
+[root@ip-172-31-4-136 k8s-specifications]#
+
+   OBSERVATION:
+   It took time to delete DB pod and it restarted too. Meanwhile , casted vote and it took time to display in results page.
+    Front end application results were not showing immediately.
+    In UNIX , new pods got created.
+   
+   HOW I MADE THE RESULT POD WORK :
+   ANSWER: 
+   When the DB pod was restarted and new pod started running , I was able to see the results in front end .
+   
+    
+    [root@ip-172-31-4-136 k8s-specifications]# kubectl describe pods -n preethi result-5d57b59f4b-88bll
+    Last State:     Terminated
+    Reason:       Error
+    Exit Code:    1
+    Started:      Wed, 08 Mar 2023 14:07:55 +0000
+    Finished:     Wed, 08 Mar 2023 16:18:25 +0000
+    Ready:          True
+    Restart Count:  1
+    
+    Events:
+  Type    Reason   Age                   From     Message
+  ----    ------   ----                  ----     -------
+  Normal  Pulled   7m45s (x2 over 138m)  kubelet  Container image "dockersamples/examplevotingapp_result:before" already present on machine
+  Normal  Created  7m45s (x2 over 138m)  kubelet  Created container result
+  Normal  Started  7m45s (x2 over 138m)  kubelet  Started container result
+
+
+   
+   
+   
